@@ -10,4 +10,6 @@ Jupyter notebook, visual studio code and pycharm as IDE
 Python flask for http server
 HTML/CSS/Javascript for UI
 
-URL: http://ec2-3-16-213-249.us-east-2.compute.amazonaws.com/
+AWS Deployment - NGINX, Gunicorn3, Flask
+
+URL: http://3.16.213.249/
