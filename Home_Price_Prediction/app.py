@@ -1,8 +1,11 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template,url_for
 import util
 
-util.load_saved_artifacts()
-app=Flask(__name__,template_folder='template')
+app=Flask(__name__)
+
+@app.route("/")
+def index():
+    return render_template("home.html")
 
 @app.route('/get_location_names', methods=['GET'])
 def get_location_names():
@@ -24,9 +27,10 @@ def predict_home_price():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+
 if __name__ == "__main__":
     print("Starting Python Flask Server For Home Price Prediction...")
-    #util.load_saved_artifacts()
+    util.load_saved_artifacts()
     app.run()
     
     

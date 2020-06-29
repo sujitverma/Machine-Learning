@@ -2,9 +2,11 @@
 <html>
 <head>
     <title>Banglore Home Price Prediction</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/app.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="app.js"></script>
-	<link rel="stylesheet" href="app.css">
+    <script src="{{ url_for('static', filename='js/app.js')}}"></script>
+<!--     <script src="app.js"></script> -->
+<!-- 	<link rel="stylesheet" href="app.css"> -->
     <meta name="description" content="Banglore House Price Prediction">
     <meta name="author" content="Sujit">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

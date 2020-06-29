@@ -1,0 +1,12 @@
+ssh -i "C:\Users\sujit\.ssh\bhp.pem" ubuntu@ec2-3-16-213-249.us-east-2.compute.amazonaws.com
+
+cd Home_Price_Prediction
+source venv/bin/activate
+cd Server
+python3 server.py
+
+cd /etc/nginx/sites-enabled
+
+sudo systemctl daemon-reload
+sudo service nginx restart
+sudo service gunicorn3 restart
