@@ -1,0 +1,3 @@
+[submodule "HomePricePrediction"]
+	path = HomePricePrediction
+	url = https://github.com/sujitverma/Machine-Learning.git
