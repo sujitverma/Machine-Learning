@@ -12,4 +12,4 @@ AWS Deployment - NGINX, Gunicorn3, Flask
 
 URL: http://3.16.213.249/
 
-![alt text](https://github.com/sujitverma/Machine-Learning/FaceDetection/Capture.png)
+![alt text](https://github.com/sujitverma/Machine-Learning/Home_Price_Prediction/Capture.png)
