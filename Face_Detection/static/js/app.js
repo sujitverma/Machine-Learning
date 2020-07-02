@@ -1,60 +1,101 @@
-function getBathValue() {
-  var uiBathrooms = document.getElementsByName("uiBathrooms");
-  for(var i in uiBathrooms) {
-    if(uiBathrooms[i].checked) {
-        return parseInt(i)+1;
-    }
-  }
-  return -1; // Invalid Value
-}
+Dropzone.autoDiscover = false;
 
-function getBHKValue() {
-  var uiBHK = document.getElementsByName("uiBHK");
-  for(var i in uiBHK) {
-    if(uiBHK[i].checked) {
-        return parseInt(i)+1;
-    }
-  }
-  return -1; // Invalid Value
-}
-
-function onClickedEstimatePrice() {
-  console.log("Estimate price button clicked");
-  var sqft = document.getElementById("uiSqft");
-  var bhk = getBHKValue();
-  var bathrooms = getBathValue();
-  var location = document.getElementById("uiLocations");
-  var estPrice = document.getElementById("uiEstimatedPrice");
-//   var url = "/api/predict_home_price";
-  var url = "http://127.0.0.1:5000/predict_home_price";
-  $.post(url, {
-      total_sqft: parseFloat(sqft.value),
-      bhk: bhk,
-      bath: bathrooms,
-      location: location.value
-  },function(data, status) {
-      console.log(data.estimated_price);
-      estPrice.innerHTML = "<h2>" + data.estimated_price.toString() + " Lakh</h2>";
-      console.log(status);
-  });
-}
-
-function onPageLoad() {
-    console.log("document loaded" );
-//     var url = "/api/get_location_names";
-    var url = "http://127.0.0.1:5000/get_location_names"; 
-    $.get(url,function(data, status) {
-        console.log("got response for get_location_names request");
-        if(data) {
-            var locations = data.locations;
-            var uiLocations = document.getElementById("uiLocations");
-            $('#uiLocations').empty();
-            for(var i in locations) {
-                var opt = new Option(locations[i]);
-                $('#uiLocations').append(opt);
-            }
+function init() {
+    let dz = new Dropzone("#dropzone", {
+        url: "/",
+        maxFiles: 1,
+        addRemoveLinks: true,
+        dictDefaultMessage: "Some Message",
+        autoProcessQueue: false
+    });
+    
+    dz.on("addedfile", function() {
+        if (dz.files[1]!=null) {
+            dz.removeFile(dz.files[0]);        
         }
+    });
+
+    dz.on("complete", function (file) {
+        let imageData = file.dataURL;
+        
+        var url = "http://127.0.0.1:5000/classify_image";
+
+        $.post(url, {
+            image_data: file.dataURL
+        },function(data, status) {
+            /* 
+            Below is a sample response if you have two faces in an image lets say virat and roger together.
+            Most of the time if there is one person in the image you will get only one element in below array
+            data = [
+                {
+                    class: "viral_kohli",
+                    class_probability: [1.05, 12.67, 22.00, 4.5, 91.56],
+                    class_dictionary: {
+                        lionel_messi: 0,
+                        maria_sharapova: 1,
+                        roger_federer: 2,
+                        serena_williams: 3,
+                        virat_kohli: 4
+                    }
+                },
+                {
+                    class: "roder_federer",
+                    class_probability: [7.02, 23.7, 52.00, 6.1, 1.62],
+                    class_dictionary: {
+                        lionel_messi: 0,
+                        maria_sharapova: 1,
+                        roger_federer: 2,
+                        serena_williams: 3,
+                        virat_kohli: 4
+                    }
+                }
+            ]
+            */
+            console.log(data);
+            if (!data || data.length==0) {
+                $("#resultHolder").hide();
+                $("#divClassTable").hide();                
+                $("#error").show();
+                return;
+            }
+            let players = ["lionel_messi", "maria_sharapova", "roger_federer", "serena_williams", "virat_kohli"];
+            
+            let match = null;
+            let bestScore = -1;
+            for (let i=0;i<data.length;++i) {
+                let maxScoreForThisClass = Math.max(...data[i].class_probability);
+                if(maxScoreForThisClass>bestScore) {
+                    match = data[i];
+                    bestScore = maxScoreForThisClass;
+                }
+            }
+            if (match) {
+                $("#error").hide();
+                $("#resultHolder").show();
+                $("#divClassTable").show();
+                $("#resultHolder").html($(`[data-player="${match.class}"`).html());
+                let classDictionary = match.class_dictionary;
+                for(let personName in classDictionary) {
+                    let index = classDictionary[personName];
+                    let proabilityScore = match.class_probability[index];
+                    let elementName = "#score_" + personName;
+                    $(elementName).html(proabilityScore);
+                }
+            }
+            // dz.removeFile(file);            
+        });
+    });
+
+    $("#submitBtn").on('click', function (e) {
+        dz.processQueue();		
     });
 }
 
-window.onload = onPageLoad;
+$(document).ready(function() {
+    console.log( "ready!" );
+    $("#error").hide();
+    $("#resultHolder").hide();
+    $("#divClassTable").hide();
+
+    init();
+});
